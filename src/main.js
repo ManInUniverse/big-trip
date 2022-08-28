@@ -13,3 +13,7 @@ render(new FilterView(), tripFiltersContainer);
 render(new SortingView(), tripEventsContainer);
 
 tripEventsPresenter.init(tripEventsContainer);
+
+import { generateTripEvent } from './mock/trip-event.js';
+
+console.log(generateTripEvent());
