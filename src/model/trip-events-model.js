@@ -1,7 +1,7 @@
-// import { generateTripEvent } from '../mock/trip-event.js';
+import { generateTripEvent } from '../mock/trip-event.js';
 
-// export default class TripEventsModel {
-//   tripEvents = Array.from({ length: 10 }, generateTripEvent);
+export default class TripEventsModel {
+  tripEvents = Array.from({ length: 10 }, generateTripEvent);
 
-//   getTripEvents = () => this.tripEvents;
-// }
+  getTripEvents = () => this.tripEvents;
+}

@@ -13,8 +13,8 @@ const generateTripEvent = () => {
   const typeOfTravel = getRandomArrayElement(typesOfTravel);
   return {
     basePrice: getRandomInteger(100, 1000),
-    dateFrom: null,
-    dateTo: null,
+    dateFrom: '2019-07-10T22:55:56',
+    dateTo: '2019-07-10T22:55:56',
     destination: getRandomArrayElement(destinations).id,
     id: getRandomInteger(0, 1000),
     type: typeOfTravel,
