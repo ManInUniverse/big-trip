@@ -1,25 +1,25 @@
 import { getRandomInteger, getRandomArrayElement } from '../utils.js';
 import { getDestinations } from './destinations-mock.js';
-import { getOffers } from './offers-mock.js';
+import { getOffersByType } from './offers-by-type-mock.js';
 
-const destinationsData = getDestinations();
-const offersData = getOffers();
-const typesOfTravel = offersData.map((offer) => offer.type);
+const destinations = getDestinations();
+const offersByType = getOffersByType();
+const eventTypes = offersByType.map((element) => element.type);
 
-const getOffersByType = (typeOfTravel) => offersData.find((offer) => typeOfTravel === offer.type).offers;
-const getOffersId = (offersByType) => offersByType.map((offer) => offer.id);
+const getOffersByTargetType = (targetType) => offersByType.find((element) => element.type === targetType).offers;
+const getOffersId = (offers) => offers.map((offer) => offer.id);
 
 const generateEvent = () => {
-  const typeOfTravel = getRandomArrayElement(typesOfTravel);
+  const eventType = getRandomArrayElement(eventTypes);
   return {
     basePrice: getRandomInteger(100, 1000),
     dateFrom: '2019-07-10T22:55:56.845Z',
     dateTo: '2019-07-11T11:22:13.375Z',
-    destination: getRandomArrayElement(destinationsData).id,
+    destination: getRandomArrayElement(destinations).id,
     id: getRandomInteger(0, 1000),
-    type: typeOfTravel,
-    offers: getOffersId(getOffersByType(typeOfTravel))
+    type: eventType,
+    offers: getOffersId(getOffersByTargetType(eventType))
   };
 };
 
-export { destinationsData, offersData, generateEvent };
+export { destinations, offersByType, generateEvent };

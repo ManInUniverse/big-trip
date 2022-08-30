@@ -161,6 +161,6 @@ const OFFERS_BY_TYPE = [
   }
 ];
 
-const getOffers = () => OFFERS_BY_TYPE;
+const getOffersByType = () => OFFERS_BY_TYPE;
 
-export { getOffers };
+export { getOffersByType };

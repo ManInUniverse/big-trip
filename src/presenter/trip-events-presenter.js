@@ -10,16 +10,16 @@ export default class TripEventsPresenter {
   init = (tripEventsContainer, tripEventsModel) => {
     this.tripEventsContainer = tripEventsContainer;
     this.tripEventsModel = tripEventsModel;
-    this.tripEvents = [...this.tripEventsModel.getTripEvents()];
-    this.destinationsData = [...this.tripEventsModel.getDestinationsData()];
-    this.offersData = [...this.tripEventsModel.getOffersData()];
+    this.events = [...this.tripEventsModel.getEvents()];
+    this.destinations = [...this.tripEventsModel.getDestinations()];
+    this.offersByType = [...this.tripEventsModel.getOffersByType()];
 
     render(this.tripEventsListComponent, tripEventsContainer);
     render(new AddEventView(), this.tripEventsListComponent.getElement());
     render(new EditEventView(), this.tripEventsListComponent.getElement());
 
-    for (let i = 0; i < this.tripEvents.length; i++) {
-      render(new EventView(this.tripEvents[i], this.destinationsData, this.offersData), this.tripEventsListComponent.getElement());
+    for (let i = 0; i < this.events.length; i++) {
+      render(new EventView(this.events[i], this.destinations, this.offersByType), this.tripEventsListComponent.getElement());
     }
   };
 }
