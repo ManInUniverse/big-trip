@@ -20,7 +20,7 @@ const createOffersTemplate = (offersData, type, offers) => {
   return offersTemplatesArray.join('');
 };
 
-const createTripEventTemplate = (tripEvent, destinationsData, offersData) => {
+const createEventTemplate = (tripEvent, destinationsData, offersData) => {
   const { basePrice, dateFrom, dateTo, destination, id, type, offers } = tripEvent;
   const destinationName = destinationsData.find((dest) => dest.id === destination).name;
 
@@ -63,7 +63,7 @@ const createTripEventTemplate = (tripEvent, destinationsData, offersData) => {
   );
 };
 
-export default class TripEventView {
+export default class EventView {
   constructor(tripEvent, destinationsData, offersData) {
     this.tripEvent = tripEvent;
     this.destinationsData = destinationsData;
@@ -71,7 +71,7 @@ export default class TripEventView {
   }
 
   getTemplate() {
-    return createTripEventTemplate(this.tripEvent, this.destinationsData, this.offersData);
+    return createEventTemplate(this.tripEvent, this.destinationsData, this.offersData);
   }
 
   getElement() {
