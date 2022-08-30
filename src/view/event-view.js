@@ -5,25 +5,20 @@ const createOffersTemplate = (offersByType, type, offers) => {
   const offersByCurrentType = offersByType.find((element) => element.type === type).offers;
   const offersById = offersByCurrentType.filter((element) => offers.includes(element.id));
 
-  const offersTemplatesArray = [];
-
-  for (let i = 0; i < offersById.length; i++) {
-    const { title, price } = offersById[i];
-    const offerTemplate =
-    `<li class="event__offer">
-      <span class="event__offer-title">${title}</span>
-      &plus;&euro;&nbsp;
-      <span class="event__offer-price">${price}</span>
-    </li>`;
-    offersTemplatesArray.push(offerTemplate);
-  }
-  return offersTemplatesArray.join('');
+  return offersById.map((offer) => {
+    const { title, price } = offer;
+    return (
+      `<li class="event__offer">
+        <span class="event__offer-title">${title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${price}</span>
+      </li>`
+    );
+  }).join('');
 };
 
 const createEventTemplate = (event, destinations, offersByType) => {
-
   const { basePrice, dateFrom, dateTo, destination, type, offers } = event;
-
   const destinationName = destinations.find((element) => element.id === destination).name;
 
   return (
