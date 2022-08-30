@@ -2,13 +2,13 @@ import { createElement } from '../render.js';
 import { formatEventDateTime } from '../utils.js';
 
 const createOffersTemplate = (offersByType, type, offers) => {
-  const offersArrayByType = offersByType.find((element) => element.type === type).offers;
-  const currentOffersArray = offersArrayByType.filter((elem) => offers.includes(elem.id));
+  const offersByCurrentType = offersByType.find((element) => element.type === type).offers;
+  const offersById = offersByCurrentType.filter((element) => offers.includes(element.id));
 
   const offersTemplatesArray = [];
 
-  for (let i = 0; i < currentOffersArray.length; i++) {
-    const { title, price } = currentOffersArray[i];
+  for (let i = 0; i < offersById.length; i++) {
+    const { title, price } = offersById[i];
     const offerTemplate =
     `<li class="event__offer">
       <span class="event__offer-title">${title}</span>
