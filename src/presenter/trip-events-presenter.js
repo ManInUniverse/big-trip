@@ -12,13 +12,14 @@ export default class TripEventsPresenter {
     this.tripEventsModel = tripEventsModel;
     this.tripEvents = [...this.tripEventsModel.getTripEvents()];
     this.destinationsData = [...this.tripEventsModel.getDestinationsData()];
+    this.offersData = [...this.tripEventsModel.getOffersData()];
 
     render(this.tripEventsListComponent, tripEventsContainer);
     render(new TripEventCreatorView(), this.tripEventsListComponent.getElement());
     render(new TripEventEditorView(), this.tripEventsListComponent.getElement());
 
     for (let i = 0; i < this.tripEvents.length; i++) {
-      render(new TripEventView(this.tripEvents[i], this.destinationsData), this.tripEventsListComponent.getElement());
+      render(new TripEventView(this.tripEvents[i], this.destinationsData, this.offersData), this.tripEventsListComponent.getElement());
     }
   };
 }
