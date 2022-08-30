@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
 
-const humanizeTripEventDate = (date, format) => dayjs.utc(date).format(format);
+const formatEventDateTime = (date, format) => dayjs.utc(date).format(format);
 
 const getRandomInteger = function (a = 0, b = 1) {
   const lower = Math.ceil(Math.min(a, b));
@@ -15,4 +15,4 @@ const getRandomArrayElement = function (targetArray) {
   return targetArray[getRandomInteger(0, targetArray.length - 1)];
 };
 
-export { getRandomInteger, getRandomArrayElement, humanizeTripEventDate };
+export { getRandomInteger, getRandomArrayElement, formatEventDateTime };

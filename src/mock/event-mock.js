@@ -9,7 +9,7 @@ const typesOfTravel = offersData.map((offer) => offer.type);
 const getOffersByType = (typeOfTravel) => offersData.find((offer) => typeOfTravel === offer.type).offers;
 const getOffersId = (offersByType) => offersByType.map((offer) => offer.id);
 
-const generateTripEvent = () => {
+const generateEvent = () => {
   const typeOfTravel = getRandomArrayElement(typesOfTravel);
   return {
     basePrice: getRandomInteger(100, 1000),
@@ -22,4 +22,4 @@ const generateTripEvent = () => {
   };
 };
 
-export { destinationsData, offersData, generateTripEvent };
+export { destinationsData, offersData, generateEvent };

@@ -1,8 +1,8 @@
-import { generateTripEvent } from '../mock/trip-event-mock.js';
-import { destinationsData, offersData } from '../mock/trip-event-mock.js';
+import { generateEvent } from '../mock/event-mock.js';
+import { destinationsData, offersData } from '../mock/event-mock.js';
 
 export default class TripEventsModel {
-  tripEvents = Array.from({ length: 10 }, generateTripEvent);
+  tripEvents = Array.from({ length: 10 }, generateEvent);
   destinations = destinationsData;
   offersData = offersData;
 

@@ -1,5 +1,5 @@
 import { createElement } from '../render.js';
-import { humanizeTripEventDate } from '../utils.js';
+import { formatEventDateTime } from '../utils.js';
 
 const createOffersTemplate = (offersData, type, offers) => {
   const offersArrayByType = offersData.find((elem) => elem.type === type).offers;
@@ -8,7 +8,7 @@ const createOffersTemplate = (offersData, type, offers) => {
   const offersTemplatesArray = [];
 
   for (let i = 0; i < currentOffersArray.length; i++) {
-    const { id, title, price } = currentOffersArray[i];
+    const { title, price } = currentOffersArray[i];
     const offerTemplate =
     `<li class="event__offer">
       <span class="event__offer-title">${title}</span>
@@ -21,31 +21,22 @@ const createOffersTemplate = (offersData, type, offers) => {
 };
 
 const createEventTemplate = (tripEvent, destinationsData, offersData) => {
-  const { basePrice, dateFrom, dateTo, destination, id, type, offers } = tripEvent;
+  const { basePrice, dateFrom, dateTo, destination, type, offers } = tripEvent;
   const destinationName = destinationsData.find((dest) => dest.id === destination).name;
-
-  const timeFromHumanized = humanizeTripEventDate(dateFrom, 'H:mm');
-  const timeToHumanized = humanizeTripEventDate(dateTo, 'H:mm');
-
-  const dateFromDisplayHumanized = humanizeTripEventDate(dateFrom, 'MMM DD');
-  const dateFromAttribute = humanizeTripEventDate(dateFrom, 'YYYY-MM-DD');
-
-  const dateTimeFromAttribute = humanizeTripEventDate(dateFrom, 'YYYY-MM-DDTHH:mm');
-  const dateTimeToAttribute = humanizeTripEventDate(dateTo, 'YYYY-MM-DDTHH:mm');
 
   return (
     `<li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="${dateFromAttribute}">${dateFromDisplayHumanized}</time>
+        <time class="event__date" datetime="${formatEventDateTime(dateFrom, 'YYYY-MM-DD')}">${formatEventDateTime(dateFrom, 'MMM DD')}</time>
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
         <h3 class="event__title">${type} ${destinationName}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${dateTimeFromAttribute}">${timeFromHumanized}</time>
+            <time class="event__start-time" datetime="${formatEventDateTime(dateFrom, 'YYYY-MM-DDTHH:mm')}">${formatEventDateTime(dateFrom, 'H:mm')}</time>
             &mdash;
-            <time class="event__end-time" datetime="${dateTimeToAttribute}">${timeToHumanized}</time>
+            <time class="event__end-time" datetime="${formatEventDateTime(dateTo, 'YYYY-MM-DDTHH:mm')}">${formatEventDateTime(dateTo, 'H:mm')}</time>
           </p>
         </div>
         <p class="event__price">
