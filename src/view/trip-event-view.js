@@ -1,16 +1,18 @@
 import { createElement } from '../render.js';
 
-const createTripEventTemplate = (tripEvent) => {
-  const { basePrice, dateFrom, dateTo, destination, id, type} = tripEvent;
+const createTripEventTemplate = (tripEvent, destinationsData) => {
+  const { basePrice, dateFrom, dateTo, destination, id, type } = tripEvent;
+
+  const destinationName = destinationsData.find((dest) => dest.id === destination).name;
 
   return (
     `<li class="trip-events__item">
       <div class="event">
         <time class="event__date" datetime="2019-03-18">MAR 18</time>
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} Amsterdam</h3>
+        <h3 class="event__title">${type} ${destinationName}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
@@ -38,12 +40,13 @@ const createTripEventTemplate = (tripEvent) => {
 };
 
 export default class TripEventView {
-  constructor(tripEvent) {
+  constructor(tripEvent, destinationsData) {
     this.tripEvent = tripEvent;
+    this.destinationsData = destinationsData;
   }
 
   getTemplate() {
-    return createTripEventTemplate(this.tripEvent);
+    return createTripEventTemplate(this.tripEvent, this.destinationsData);
   }
 
   getElement() {

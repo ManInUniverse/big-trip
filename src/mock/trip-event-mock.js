@@ -1,12 +1,12 @@
 import { getRandomInteger, getRandomArrayElement } from '../utils.js';
-import { getDestinations } from '../mock/destinations.js';
-import { getOffers } from '../mock/offers.js';
+import { getDestinations } from './destinations-mock.js';
+import { getOffers } from './offers-mock.js';
 
-const destinations = getDestinations();
-const offers = getOffers();
-const typesOfTravel = offers.map((offer) => offer.type);
+const destinationsData = getDestinations();
+const offersData = getOffers();
+const typesOfTravel = offersData.map((offer) => offer.type);
 
-const getOffersByType = (typeOfTravel) => offers.find((offer) => typeOfTravel === offer.type).offers;
+const getOffersByType = (typeOfTravel) => offersData.find((offer) => typeOfTravel === offer.type).offers;
 const getOffersId = (offersByType) => offersByType.map((offer) => offer.id);
 
 const generateTripEvent = () => {
@@ -15,11 +15,11 @@ const generateTripEvent = () => {
     basePrice: getRandomInteger(100, 1000),
     dateFrom: '2019-07-10T22:55:56',
     dateTo: '2019-07-10T22:55:56',
-    destination: getRandomArrayElement(destinations).id,
+    destination: getRandomArrayElement(destinationsData).id,
     id: getRandomInteger(0, 1000),
     type: typeOfTravel,
     offers: getOffersId(getOffersByType(typeOfTravel))
   };
 };
 
-export { generateTripEvent };
+export { destinationsData, generateTripEvent };
