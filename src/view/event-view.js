@@ -1,8 +1,8 @@
 import { createElement } from '../render.js';
 import { formatEventDateTime } from '../utils.js';
 
-const createOffersTemplate = (offersData, type, offers) => {
-  const offersArrayByType = offersData.find((elem) => elem.type === type).offers;
+const createOffersTemplate = (offersByType, type, offers) => {
+  const offersArrayByType = offersByType.find((element) => element.type === type).offers;
   const currentOffersArray = offersArrayByType.filter((elem) => offers.includes(elem.id));
 
   const offersTemplatesArray = [];
@@ -20,9 +20,11 @@ const createOffersTemplate = (offersData, type, offers) => {
   return offersTemplatesArray.join('');
 };
 
-const createEventTemplate = (tripEvent, destinationsData, offersData) => {
-  const { basePrice, dateFrom, dateTo, destination, type, offers } = tripEvent;
-  const destinationName = destinationsData.find((dest) => dest.id === destination).name;
+const createEventTemplate = (event, destinations, offersByType) => {
+
+  const { basePrice, dateFrom, dateTo, destination, type, offers } = event;
+
+  const destinationName = destinations.find((element) => element.id === destination).name;
 
   return (
     `<li class="trip-events__item">
@@ -44,7 +46,7 @@ const createEventTemplate = (tripEvent, destinationsData, offersData) => {
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${createOffersTemplate(offersData, type, offers)}
+          ${createOffersTemplate(offersByType, type, offers)}
         </ul>
         <button class="event__rollup-btn" type="button">
           <span class="visually-hidden">Open event</span>
@@ -55,14 +57,14 @@ const createEventTemplate = (tripEvent, destinationsData, offersData) => {
 };
 
 export default class EventView {
-  constructor(tripEvent, destinationsData, offersData) {
-    this.tripEvent = tripEvent;
-    this.destinationsData = destinationsData;
-    this.offersData = offersData;
+  constructor(event, destinations, offersByType) {
+    this.event = event;
+    this.destinations = destinations;
+    this.offersByType = offersByType;
   }
 
   getTemplate() {
-    return createEventTemplate(this.tripEvent, this.destinationsData, this.offersData);
+    return createEventTemplate(this.event, this.destinations, this.offersByType);
   }
 
   getElement() {
