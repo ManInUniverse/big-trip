@@ -1,8 +1,6 @@
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-dayjs.extend(utc);
 
-const formatEventDateTime = (date, format) => dayjs.utc(date).format(format);
+const formatEventDateTime = (date, format) => dayjs(date).format(format);
 
 const getRandomInteger = function (a = 0, b = 1) {
   const lower = Math.ceil(Math.min(a, b));
