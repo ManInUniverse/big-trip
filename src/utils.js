@@ -15,4 +15,6 @@ const getRandomArrayElement = function (targetArray) {
   return targetArray[getRandomInteger(0, targetArray.length - 1)];
 };
 
-export { getRandomInteger, getRandomArrayElement, formatEventDateTime };
+const getRandomElementsFromArray = (targetArray, count) => targetArray.slice().sort(() => Math.random() - 0.5).slice(0, count);
+
+export { getRandomInteger, getRandomArrayElement, formatEventDateTime, getRandomElementsFromArray };

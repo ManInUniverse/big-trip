@@ -1,19 +1,27 @@
 import { createElement } from '../render.js';
 import { formatEventDateTime } from '../utils.js';
 
-const createOffersTemplate = (type, offersByType) => {
+const createOffersTemplate = (type, offers, offersByType) => {
   const offersByCurrentType = offersByType.find((element) => element.type === type).offers;
 
-  return offersByCurrentType.map(({ title, price }) =>
-    `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-1" type="checkbox" name="event-offer-${title}" checked>
-      <label class="event__offer-label" for="event-offer-luggage-1">
+  return offersByCurrentType.map(({ id, title, price }) =>{
+    const isChecked = () => {
+      if (offers.includes(id)) {
+        return 'checked';
+      }
+      return '';
+    };
+    return (
+      `<div class="event__offer-selector">
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-1" type="checkbox" name="event-offer-${title}" ${isChecked()}>
+      <label class="event__offer-label" for="event-offer-${title}-1">
         <span class="event__offer-title">${title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${price}</span>
       </label>
     </div>`
-  ).join('');
+    );
+  }).join('');
 };
 
 const createDestinationListTemplate = (destinations) => destinations.map((element) => `<option value="${element.name}"></option>`).join('');
@@ -90,7 +98,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
           <div class="event__available-offers">
-            ${createOffersTemplate(type, offersByType)}
+            ${createOffersTemplate(type, offers, offersByType)}
           </div>
         </section>
 
