@@ -15,7 +15,7 @@ export default class TripEventsPresenter {
     this.offersByType = [...this.tripEventsModel.getOffersByType()];
 
     render(this.tripEventsListComponent, tripEventsContainer);
-    // render(new AddEventView(), this.tripEventsListComponent.getElement());
+    render(new AddEventView(), this.tripEventsListComponent.getElement());
     render(new EditEventView(this.events[0], this.destinations, this.offersByType), this.tripEventsListComponent.getElement());
 
     for (let i = 0; i < this.events.length; i++) {
