@@ -15,22 +15,16 @@ export default class TripEventsPresenter {
   #destinations = null;
   #offersByType = null;
 
-  init = (tripEventsContainer, tripEventsModel) => {
+  constructor(tripEventsContainer, tripEventsModel) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#tripEventsModel = tripEventsModel;
+  }
+
+  init = () => {
     this.#events = [...this.#tripEventsModel.events];
     this.#destinations = [...this.#tripEventsModel.destinations];
     this.#offersByType = [...this.#tripEventsModel.offersByType];
-
-    if (this.#events.length === 0) {
-      render(this.#emptyListMessageComponent, this.#tripEventsContainer);
-    } else {
-      render(this.#sortingComponent, this.#tripEventsContainer);
-      render(this.#tripEventsListComponent, this.#tripEventsContainer);
-      for (let i = 0; i < this.#events.length; i++) {
-        this.#renderEvent(this.#events[i], this.#destinations, this.#offersByType);
-      }
-    }
+    this.#renderTripEvents();
   };
 
   #renderEvent = (event, destinations, offersByType) => {
@@ -68,5 +62,17 @@ export default class TripEventsPresenter {
     });
 
     render(eventComponent, this.#tripEventsListComponent.element);
+  };
+
+  #renderTripEvents = () => {
+    if (this.#events.length === 0) {
+      render(this.#emptyListMessageComponent, this.#tripEventsContainer);
+    } else {
+      render(this.#sortingComponent, this.#tripEventsContainer);
+      render(this.#tripEventsListComponent, this.#tripEventsContainer);
+      for (let i = 0; i < this.#events.length; i++) {
+        this.#renderEvent(this.#events[i], this.#destinations, this.#offersByType);
+      }
+    }
   };
 }
