@@ -1,11 +1,19 @@
 import { destinations, offersByType, generateEvent } from '../mock/event-mock.js';
 
 export default class TripEventsModel {
-  events = Array.from({ length: 10 }, generateEvent);
-  destinations = destinations;
-  offersByType = offersByType;
+  #events = Array.from({ length: 10 }, generateEvent);
+  #destinations = destinations;
+  #offersByType = offersByType;
 
-  getEvents = () => this.events;
-  getDestinations = () => this.destinations;
-  getOffersByType = () => this.offersByType;
+  get events() {
+    return this.#events;
+  }
+
+  get destinations() {
+    return this.#destinations;
+  }
+
+  get offersByType() {
+    return this.#offersByType;
+  }
 }

@@ -5,21 +5,26 @@ import EditEventView from '../view/edit-event-view.js';
 import EventView from '../view/event-view.js';
 
 export default class TripEventsPresenter {
-  tripEventsListComponent = new TripEventsListView();
+  #tripEventsListComponent = new TripEventsListView();
+  #tripEventsContainer = null;
+  #tripEventsModel = null;
+  #events = null;
+  #destinations = null;
+  #offersByType = null;
 
   init = (tripEventsContainer, tripEventsModel) => {
-    this.tripEventsContainer = tripEventsContainer;
-    this.tripEventsModel = tripEventsModel;
-    this.events = [...this.tripEventsModel.getEvents()];
-    this.destinations = [...this.tripEventsModel.getDestinations()];
-    this.offersByType = [...this.tripEventsModel.getOffersByType()];
+    this.#tripEventsContainer = tripEventsContainer;
+    this.#tripEventsModel = tripEventsModel;
+    this.#events = [...this.#tripEventsModel.events];
+    this.#destinations = [...this.#tripEventsModel.destinations];
+    this.#offersByType = [...this.#tripEventsModel.offersByType];
 
-    render(this.tripEventsListComponent, tripEventsContainer);
-    render(new AddEventView(this.destinations, this.offersByType), this.tripEventsListComponent.getElement());
-    render(new EditEventView(this.events[0], this.destinations, this.offersByType), this.tripEventsListComponent.getElement());
+    render(this.#tripEventsListComponent, this.#tripEventsContainer);
+    render(new AddEventView(this.#destinations, this.#offersByType), this.#tripEventsListComponent.element);
+    render(new EditEventView(this.#events[0], this.#destinations, this.#offersByType), this.#tripEventsListComponent.element);
 
-    for (let i = 0; i < this.events.length; i++) {
-      render(new EventView(this.events[i], this.destinations, this.offersByType), this.tripEventsListComponent.getElement());
+    for (let i = 0; i < this.#events.length; i++) {
+      render(new EventView(this.#events[i], this.#destinations, this.#offersByType), this.#tripEventsListComponent.element);
     }
   };
 }

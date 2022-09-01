@@ -113,25 +113,30 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
 };
 
 export default class EditEventView {
+  #element = null;
+  #event = null;
+  #destinations = null;
+  #offersByType = null;
+
   constructor(event, destinations, offersByType) {
-    this.event = event;
-    this.destinations = destinations;
-    this.offersByType = offersByType;
+    this.#event = event;
+    this.#destinations = destinations;
+    this.#offersByType = offersByType;
   }
 
-  getTemplate() {
-    return createEditEventTemplate(this.event, this.destinations, this.offersByType);
+  get template() {
+    return createEditEventTemplate(this.#event, this.#destinations, this.#offersByType);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
