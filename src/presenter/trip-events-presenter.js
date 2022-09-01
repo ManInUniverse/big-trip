@@ -1,10 +1,13 @@
 import { render } from '../render.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
-// import AddEventView from '../view/add-event-view.js';
 import EditEventView from '../view/edit-event-view.js';
 import EventView from '../view/event-view.js';
+import SortingView from '../view/sorting-view.js';
+import EmptyListMessageView from '../view/empty-list-message-view.js';
 
 export default class TripEventsPresenter {
+  #emptyListMessageComponent = new EmptyListMessageView();
+  #sortingComponent = new SortingView();
   #tripEventsListComponent = new TripEventsListView();
   #tripEventsContainer = null;
   #tripEventsModel = null;
@@ -12,19 +15,16 @@ export default class TripEventsPresenter {
   #destinations = null;
   #offersByType = null;
 
-  init = (tripEventsContainer, tripEventsModel) => {
+  constructor(tripEventsContainer, tripEventsModel) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#tripEventsModel = tripEventsModel;
+  }
+
+  init = () => {
     this.#events = [...this.#tripEventsModel.events];
     this.#destinations = [...this.#tripEventsModel.destinations];
     this.#offersByType = [...this.#tripEventsModel.offersByType];
-
-    render(this.#tripEventsListComponent, this.#tripEventsContainer);
-    // render(new AddEventView(this.#destinations, this.#offersByType), this.#tripEventsListComponent.element);
-
-    for (let i = 0; i < this.#events.length; i++) {
-      this.#renderEvent(this.#events[i], this.#destinations, this.#offersByType);
-    }
+    this.#renderTripEvents();
   };
 
   #renderEvent = (event, destinations, offersByType) => {
@@ -62,5 +62,17 @@ export default class TripEventsPresenter {
     });
 
     render(eventComponent, this.#tripEventsListComponent.element);
+  };
+
+  #renderTripEvents = () => {
+    if (this.#events.length === 0) {
+      render(this.#emptyListMessageComponent, this.#tripEventsContainer);
+    } else {
+      render(this.#sortingComponent, this.#tripEventsContainer);
+      render(this.#tripEventsListComponent, this.#tripEventsContainer);
+      for (let i = 0; i < this.#events.length; i++) {
+        this.#renderEvent(this.#events[i], this.#destinations, this.#offersByType);
+      }
+    }
   };
 }

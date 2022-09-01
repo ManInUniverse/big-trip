@@ -1,6 +1,5 @@
 import { render } from './render.js';
 import FilterView from './view/filter-view.js';
-import SortingView from './view/sorting-view.js';
 
 import TripEventsModel from './model/trip-events-model.js';
 
@@ -10,9 +9,8 @@ const tripFiltersContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
 
 const tripEventsModel = new TripEventsModel();
-const tripEventsPresenter = new TripEventsPresenter();
+const tripEventsPresenter = new TripEventsPresenter(tripEventsContainer, tripEventsModel);
 
 render(new FilterView(), tripFiltersContainer);
-render(new SortingView(), tripEventsContainer);
 
-tripEventsPresenter.init(tripEventsContainer, tripEventsModel);
+tripEventsPresenter.init();
