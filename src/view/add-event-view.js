@@ -111,24 +111,28 @@ const createAddEventTemplate = (destinations, offersByType) => {
 };
 
 export default class AddEventView {
+  #element = null;
+  #destinations = null;
+  #offersByType = null;
+
   constructor(destinations, offersByType) {
-    this.destinations = destinations;
-    this.offersByType = offersByType;
+    this.#destinations = destinations;
+    this.#offersByType = offersByType;
   }
 
-  getTemplate() {
-    return createAddEventTemplate(this.destinations, this.offersByType);
+  get template() {
+    return createAddEventTemplate(this.#destinations, this.#offersByType);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
