@@ -1,5 +1,5 @@
-import { createElement } from '../render.js';
-import { formatEventDateTime } from '../utils.js';
+import { formatEventDateTime } from '../utils/event-utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createOffersTemplate = (type, offers, offersByType) => {
   const offersByCurrentType = offersByType.find((element) => element.type === type).offers;
@@ -112,13 +112,13 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
   );
 };
 
-export default class EditEventView {
-  #element = null;
+export default class EditEventView extends AbstractView{
   #event = null;
   #destinations = null;
   #offersByType = null;
 
   constructor(event, destinations, offersByType) {
+    super();
     this.#event = event;
     this.#destinations = destinations;
     this.#offersByType = offersByType;
@@ -128,15 +128,23 @@ export default class EditEventView {
     return createEditEventTemplate(this.#event, this.#destinations, this.#offersByType);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setOnCloseEditEventButtonClick = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onCloseEditEventButtonClick);
+  };
 
-    return this.#element;
-  }
+  #onCloseEditEventButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  setOnSubmitEventForm = (callback) => {
+    this._callback.submitEventForm = callback;
+    this.element.querySelector('form').addEventListener('submit', this.#OnSubmitEventForm);
+  };
+
+  #OnSubmitEventForm = (evt) => {
+    evt.preventDefault();
+    this._callback.submitEventForm();
+  };
 }
