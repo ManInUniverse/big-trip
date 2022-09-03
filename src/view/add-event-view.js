@@ -1,5 +1,5 @@
-import { createElement } from '../render.js';
 import { formatEventDateTime } from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createPicturesTemplate = (pictures) => pictures.map(({ src, description }) => `<img class="event__photo" src="${src}" alt="${description}"></img>`).join('');
 
@@ -110,29 +110,17 @@ const createAddEventTemplate = (destinations, offersByType) => {
   );
 };
 
-export default class AddEventView {
-  #element = null;
+export default class AddEventView extends AbstractView {
   #destinations = null;
   #offersByType = null;
 
   constructor(destinations, offersByType) {
+    super();
     this.#destinations = destinations;
     this.#offersByType = offersByType;
   }
 
   get template() {
     return createAddEventTemplate(this.#destinations, this.#offersByType);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

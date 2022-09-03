@@ -1,5 +1,5 @@
-import { createElement } from '../render.js';
 import { formatEventDateTime } from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createOffersTemplate = (type, offers, offersByType) => {
   const offersByCurrentType = offersByType.find((element) => element.type === type).offers;
@@ -112,13 +112,13 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
   );
 };
 
-export default class EditEventView {
-  #element = null;
+export default class EditEventView extends AbstractView{
   #event = null;
   #destinations = null;
   #offersByType = null;
 
   constructor(event, destinations, offersByType) {
+    super();
     this.#event = event;
     this.#destinations = destinations;
     this.#offersByType = offersByType;
@@ -126,17 +126,5 @@ export default class EditEventView {
 
   get template() {
     return createEditEventTemplate(this.#event, this.#destinations, this.#offersByType);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
