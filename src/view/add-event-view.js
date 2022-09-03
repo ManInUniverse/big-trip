@@ -1,4 +1,4 @@
-import { formatEventDateTime } from '../utils.js';
+import { formatEventDateTime } from '../utils/event-utils.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const createPicturesTemplate = (pictures) => pictures.map(({ src, description }) => `<img class="event__photo" src="${src}" alt="${description}"></img>`).join('');

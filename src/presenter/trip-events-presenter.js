@@ -1,4 +1,4 @@
-import { render } from '../framework/render.js';
+import { render, replace } from '../framework/render.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import EditEventView from '../view/edit-event-view.js';
 import EventView from '../view/event-view.js';
@@ -32,11 +32,11 @@ export default class TripEventsPresenter {
     const editEventComponent = new EditEventView(event, destinations, offersByType);
 
     const replaceCardToForm = () => {
-      this.#tripEventsListComponent.element.replaceChild(editEventComponent.element, eventComponent.element);
+      replace(editEventComponent, eventComponent);
     };
 
     const replaceFormToCard = () => {
-      this.#tripEventsListComponent.element.replaceChild(eventComponent.element, editEventComponent.element);
+      replace(eventComponent, editEventComponent);
     };
 
     const onEscKeyDown = (evt) => {
@@ -47,16 +47,17 @@ export default class TripEventsPresenter {
       }
     };
 
-    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    eventComponent.setOnEditEventButtonClick(() => {
       replaceCardToForm();
       document.addEventListener('keydown', onEscKeyDown);
     });
 
-    editEventComponent.element.querySelector('form').addEventListener('submit', () => {
+    editEventComponent.setOnSubmitEventForm(() => {
       replaceFormToCard();
       document.removeEventListener('keydown', onEscKeyDown);
     });
-    editEventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+
+    editEventComponent.setOnCloseEditEventButtonClick(() => {
       replaceFormToCard();
       document.removeEventListener('keydown', onEscKeyDown);
     });

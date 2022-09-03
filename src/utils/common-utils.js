@@ -1,7 +1,3 @@
-import dayjs from 'dayjs';
-
-const formatEventDateTime = (date, format) => dayjs(date).format(format);
-
 const getRandomInteger = function (a = 0, b = 1) {
   const lower = Math.ceil(Math.min(a, b));
   const upper = Math.floor(Math.max(a, b));
@@ -15,4 +11,4 @@ const getRandomArrayElement = function (targetArray) {
 
 const getRandomElementsFromArray = (targetArray, count) => targetArray.slice().sort(() => Math.random() - 0.5).slice(0, count);
 
-export { getRandomInteger, getRandomArrayElement, formatEventDateTime, getRandomElementsFromArray };
+export { getRandomInteger, getRandomArrayElement, getRandomElementsFromArray };

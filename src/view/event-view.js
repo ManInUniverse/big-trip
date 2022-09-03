@@ -1,4 +1,4 @@
-import { formatEventDateTime } from '../utils.js';
+import { formatEventDateTime } from '../utils/event-utils.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const createOffersTemplate = (offersByType, type, offers) => {
@@ -66,4 +66,14 @@ export default class EventView extends AbstractView {
   get template() {
     return createEventTemplate(this.#event, this.#destinations, this.#offersByType);
   }
+
+  setOnEditEventButtonClick = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onEditEventButtonClick);
+  };
+
+  #onEditEventButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 }
