@@ -1,16 +1,17 @@
-import { render, replace } from '../framework/render.js';
+import { render } from '../framework/render.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
-import EditEventView from '../view/edit-event-view.js';
-import EventView from '../view/event-view.js';
 import SortingView from '../view/sorting-view.js';
 import EmptyListMessageView from '../view/empty-list-message-view.js';
+import EventPresenter from './event-presenter.js';
 
 export default class TripEventsPresenter {
   #emptyListMessageComponent = new EmptyListMessageView();
   #sortingComponent = new SortingView();
   #tripEventsListComponent = new TripEventsListView();
+
   #tripEventsContainer = null;
   #tripEventsModel = null;
+
   #events = null;
   #destinations = null;
   #offersByType = null;
@@ -24,45 +25,13 @@ export default class TripEventsPresenter {
     this.#events = [...this.#tripEventsModel.events];
     this.#destinations = [...this.#tripEventsModel.destinations];
     this.#offersByType = [...this.#tripEventsModel.offersByType];
+
     this.#renderTripEvents();
   };
 
   #renderEvent = (event, destinations, offersByType) => {
-    const eventComponent = new EventView(event, destinations, offersByType);
-    const editEventComponent = new EditEventView(event, destinations, offersByType);
-
-    const replaceCardToForm = () => {
-      replace(editEventComponent, eventComponent);
-    };
-
-    const replaceFormToCard = () => {
-      replace(eventComponent, editEventComponent);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        replaceFormToCard();
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
-    };
-
-    eventComponent.setOnEditEventButtonClick(() => {
-      replaceCardToForm();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
-
-    editEventComponent.setOnSubmitEventForm(() => {
-      replaceFormToCard();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    editEventComponent.setOnCloseEditEventButtonClick(() => {
-      replaceFormToCard();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    render(eventComponent, this.#tripEventsListComponent.element);
+    const eventPresenter = new EventPresenter(this.#tripEventsListComponent.element);
+    eventPresenter.init(event, destinations, offersByType);
   };
 
   #renderTripEvents = () => {

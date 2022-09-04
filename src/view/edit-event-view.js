@@ -112,7 +112,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
   );
 };
 
-export default class EditEventView extends AbstractView{
+export default class EditEventView extends AbstractView {
   #event = null;
   #destinations = null;
   #offersByType = null;
@@ -140,10 +140,10 @@ export default class EditEventView extends AbstractView{
 
   setOnSubmitEventForm = (callback) => {
     this._callback.submitEventForm = callback;
-    this.element.querySelector('form').addEventListener('submit', this.#OnSubmitEventForm);
+    this.element.querySelector('form').addEventListener('submit', this.#onSubmitEventForm);
   };
 
-  #OnSubmitEventForm = (evt) => {
+  #onSubmitEventForm = (evt) => {
     evt.preventDefault();
     this._callback.submitEventForm();
   };
