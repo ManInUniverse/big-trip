@@ -3,6 +3,7 @@ import TripEventsListView from '../view/trip-events-list-view.js';
 import SortingView from '../view/sorting-view.js';
 import EmptyListMessageView from '../view/empty-list-message-view.js';
 import EventPresenter from './event-presenter.js';
+import { updateItem } from '../utils/common-utils.js';
 
 export default class TripEventsPresenter {
   #emptyListMessageComponent = new EmptyListMessageView();
@@ -31,19 +32,37 @@ export default class TripEventsPresenter {
     this.#renderTripEvents();
   };
 
+  #onEventChange = (updatedEvent, destinations, offersByType) => {
+    this.#events = updateItem(this.#events, updatedEvent);
+    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent, destinations, offersByType);
+  };
+
   #renderEvent = (event, destinations, offersByType) => {
-    const eventPresenter = new EventPresenter(this.#tripEventsListComponent.element);
+    const eventPresenter = new EventPresenter(this.#tripEventsListComponent.element, this.#onEventChange);
     eventPresenter.init(event, destinations, offersByType);
 
     this.#eventPresenters.set(event.id, eventPresenter);
   };
 
+  #renderSorting = () => {
+    render(this.#sortingComponent, this.#tripEventsContainer);
+  };
+
+  #renderTripEventsList = () => {
+    render(this.#tripEventsListComponent, this.#tripEventsContainer);
+  };
+
+  #renderEmptyListMessage = () => {
+    render(this.#emptyListMessageComponent, this.#tripEventsContainer);
+  };
+
   #renderTripEvents = () => {
     if (this.#events.length === 0) {
-      render(this.#emptyListMessageComponent, this.#tripEventsContainer);
+      this.#renderEmptyListMessage();
     } else {
-      render(this.#sortingComponent, this.#tripEventsContainer);
-      render(this.#tripEventsListComponent, this.#tripEventsContainer);
+      this.#renderSorting();
+      this.#renderTripEventsList();
+
       for (let i = 0; i < this.#events.length; i++) {
         this.#renderEvent(this.#events[i], this.#destinations, this.#offersByType);
       }

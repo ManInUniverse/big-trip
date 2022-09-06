@@ -145,6 +145,6 @@ export default class EditEventView extends AbstractView {
 
   #onSubmitEventForm = (evt) => {
     evt.preventDefault();
-    this._callback.submitEventForm();
+    this._callback.submitEventForm(this.#event, this.#destinations, this.#offersByType);
   };
 }

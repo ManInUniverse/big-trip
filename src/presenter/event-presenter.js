@@ -7,12 +7,15 @@ export default class EventPresenter {
   #destinations = null;
   #offersByType = null;
 
+  #changeData = null;
+
   #eventComponent = null;
   #editEventComponent = null;
   #tripEventsListContainer = null;
 
-  constructor(tripEventsListContainer) {
+  constructor(tripEventsListContainer, changeData) {
     this.#tripEventsListContainer = tripEventsListContainer;
+    this.#changeData = changeData;
   }
 
   init = (event, destinations, offersByType) => {
@@ -77,7 +80,8 @@ export default class EventPresenter {
     this.#replaceFormToCard();
   };
 
-  #onFormSubmit = () => {
+  #onFormSubmit = (event, destinations, offersByType) => {
+    this.#changeData(event, destinations, offersByType);
     this.#replaceFormToCard();
   };
 }
