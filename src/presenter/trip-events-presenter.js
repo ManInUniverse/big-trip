@@ -4,6 +4,7 @@ import SortingView from '../view/sorting-view.js';
 import EmptyListMessageView from '../view/empty-list-message-view.js';
 import EventPresenter from './event-presenter.js';
 import { updateItem } from '../utils/common-utils.js';
+import { SortingType } from '../const.js';
 
 export default class TripEventsPresenter {
   #emptyListMessageComponent = new EmptyListMessageView();
@@ -41,6 +42,13 @@ export default class TripEventsPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
+  #onSortingTypeChange = (sortingType) => {
+    console.log(sortingType);
+    // - Сортируем задачи
+    // - Очищаем список
+    // - Рендерим список заново
+  };
+
   #renderEvent = (event, destinations, offersByType) => {
     const eventPresenter = new EventPresenter(this.#tripEventsListComponent.element, this.#onEventChange, this.#onModeChange);
     eventPresenter.init(event, destinations, offersByType);
@@ -50,6 +58,7 @@ export default class TripEventsPresenter {
 
   #renderSorting = () => {
     render(this.#sortingComponent, this.#tripEventsContainer);
+    this.#sortingComponent.setOnSortingTypeChange(this.#onSortingTypeChange);
   };
 
   #renderTripEventsList = () => {
