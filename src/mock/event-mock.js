@@ -2,6 +2,9 @@ import { getRandomInteger, getRandomArrayElement, getRandomElementsFromArray } f
 import { getDestinations } from './destinations-mock.js';
 import { getOffersByType } from './offers-by-type-mock.js';
 
+import { customAlphabet } from 'nanoid';
+const nanoid = customAlphabet('1234567890', 10);
+
 const destinations = getDestinations();
 const offersByType = getOffersByType();
 const eventTypes = offersByType.map((element) => element.type);
@@ -18,7 +21,7 @@ const generateEvent = () => {
     dateFrom: '2019-07-10T22:55:56.845Z',
     dateTo: '2019-07-11T11:22:13.375Z',
     destination: getRandomArrayElement(destinations).id,
-    id: getRandomInteger(0, 1000),
+    id: nanoid(),
     type: eventType,
     offers: getRandomElementsFromArray(offersId, getRandomInteger(1, offersId.length))
   };

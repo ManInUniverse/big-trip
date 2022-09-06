@@ -11,4 +11,18 @@ const getRandomArrayElement = function (targetArray) {
 
 const getRandomElementsFromArray = (targetArray, count) => targetArray.slice().sort(() => Math.random() - 0.5).slice(0, count);
 
-export { getRandomInteger, getRandomArrayElement, getRandomElementsFromArray };
+const updateItem = (items, updatedItem) => {
+  const index = items.findIndex((item) => item.id === updatedItem.id);
+
+  if (index === -1) {
+    return items;
+  }
+
+  return [
+    ...items.slice(0, index),
+    updatedItem,
+    ...items.slice(index + 1),
+  ];
+};
+
+export { getRandomInteger, getRandomArrayElement, getRandomElementsFromArray, updateItem };

@@ -1,19 +1,23 @@
-import { render, replace } from '../framework/render.js';
+import { render } from '../framework/render.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
-import EditEventView from '../view/edit-event-view.js';
-import EventView from '../view/event-view.js';
 import SortingView from '../view/sorting-view.js';
 import EmptyListMessageView from '../view/empty-list-message-view.js';
+import EventPresenter from './event-presenter.js';
+import { updateItem } from '../utils/common-utils.js';
 
 export default class TripEventsPresenter {
   #emptyListMessageComponent = new EmptyListMessageView();
   #sortingComponent = new SortingView();
   #tripEventsListComponent = new TripEventsListView();
+
   #tripEventsContainer = null;
   #tripEventsModel = null;
+
   #events = null;
   #destinations = null;
   #offersByType = null;
+
+  #eventPresenters = new Map();
 
   constructor(tripEventsContainer, tripEventsModel) {
     this.#tripEventsContainer = tripEventsContainer;
@@ -24,56 +28,53 @@ export default class TripEventsPresenter {
     this.#events = [...this.#tripEventsModel.events];
     this.#destinations = [...this.#tripEventsModel.destinations];
     this.#offersByType = [...this.#tripEventsModel.offersByType];
+
     this.#renderTripEvents();
   };
 
+  #onEventChange = (updatedEvent, destinations, offersByType) => {
+    this.#events = updateItem(this.#events, updatedEvent);
+    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent, destinations, offersByType);
+  };
+
+  #onModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
   #renderEvent = (event, destinations, offersByType) => {
-    const eventComponent = new EventView(event, destinations, offersByType);
-    const editEventComponent = new EditEventView(event, destinations, offersByType);
+    const eventPresenter = new EventPresenter(this.#tripEventsListComponent.element, this.#onEventChange, this.#onModeChange);
+    eventPresenter.init(event, destinations, offersByType);
 
-    const replaceCardToForm = () => {
-      replace(editEventComponent, eventComponent);
-    };
+    this.#eventPresenters.set(event.id, eventPresenter);
+  };
 
-    const replaceFormToCard = () => {
-      replace(eventComponent, editEventComponent);
-    };
+  #renderSorting = () => {
+    render(this.#sortingComponent, this.#tripEventsContainer);
+  };
 
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        replaceFormToCard();
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
-    };
+  #renderTripEventsList = () => {
+    render(this.#tripEventsListComponent, this.#tripEventsContainer);
+  };
 
-    eventComponent.setOnEditEventButtonClick(() => {
-      replaceCardToForm();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
-
-    editEventComponent.setOnSubmitEventForm(() => {
-      replaceFormToCard();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    editEventComponent.setOnCloseEditEventButtonClick(() => {
-      replaceFormToCard();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    render(eventComponent, this.#tripEventsListComponent.element);
+  #renderEmptyListMessage = () => {
+    render(this.#emptyListMessageComponent, this.#tripEventsContainer);
   };
 
   #renderTripEvents = () => {
     if (this.#events.length === 0) {
-      render(this.#emptyListMessageComponent, this.#tripEventsContainer);
+      this.#renderEmptyListMessage();
     } else {
-      render(this.#sortingComponent, this.#tripEventsContainer);
-      render(this.#tripEventsListComponent, this.#tripEventsContainer);
+      this.#renderSorting();
+      this.#renderTripEventsList();
+
       for (let i = 0; i < this.#events.length; i++) {
         this.#renderEvent(this.#events[i], this.#destinations, this.#offersByType);
       }
     }
+  };
+
+  #clearTripEvents = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventPresenters.clear();
   };
 }
