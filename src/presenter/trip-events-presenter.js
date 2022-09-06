@@ -37,8 +37,12 @@ export default class TripEventsPresenter {
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent, destinations, offersByType);
   };
 
+  #onModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
   #renderEvent = (event, destinations, offersByType) => {
-    const eventPresenter = new EventPresenter(this.#tripEventsListComponent.element, this.#onEventChange);
+    const eventPresenter = new EventPresenter(this.#tripEventsListComponent.element, this.#onEventChange, this.#onModeChange);
     eventPresenter.init(event, destinations, offersByType);
 
     this.#eventPresenters.set(event.id, eventPresenter);
