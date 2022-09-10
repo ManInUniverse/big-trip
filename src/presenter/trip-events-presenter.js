@@ -5,6 +5,7 @@ import EmptyListMessageView from '../view/empty-list-message-view.js';
 import EventPresenter from './event-presenter.js';
 import { updateItem } from '../utils/common-utils.js';
 import { SortingType } from '../const.js';
+import { sortEventsByDate, sortEventsByPrice } from '../utils/event-utils.js';
 
 export default class TripEventsPresenter {
   #emptyListMessageComponent = new EmptyListMessageView();
@@ -19,6 +20,9 @@ export default class TripEventsPresenter {
   #offersByType = null;
 
   #eventPresenters = new Map();
+  #sourcedEvents = [];
+
+  #currentSortingType = SortingType.DAY;
 
   constructor(tripEventsContainer, tripEventsModel) {
     this.#tripEventsContainer = tripEventsContainer;
@@ -30,11 +34,15 @@ export default class TripEventsPresenter {
     this.#destinations = [...this.#tripEventsModel.destinations];
     this.#offersByType = [...this.#tripEventsModel.offersByType];
 
+    this.#sourcedEvents = [...this.#tripEventsModel.events];
+
+    this.#sortEvents(this.#currentSortingType);
     this.#renderTripEvents();
   };
 
   #onEventChange = (updatedEvent, destinations, offersByType) => {
     this.#events = updateItem(this.#events, updatedEvent);
+    this.#sourcedEvents = updateItem(this.#sourcedEvents, updatedEvent);
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent, destinations, offersByType);
   };
 
@@ -42,11 +50,26 @@ export default class TripEventsPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
+  #sortEvents = (sortingType) => {
+    switch(sortingType) {
+      case SortingType.DAY:
+        this.#events.sort(sortEventsByDate);
+        break;
+      case SortingType.PRICE:
+        this.#events.sort(sortEventsByPrice);
+        break;
+      default:
+        this.#events = [...this.#sourcedEvents];
+    }
+
+    this.#currentSortingType = sortingType;
+  };
+
   #onSortingTypeChange = (sortingType) => {
-    console.log(sortingType);
-    // - Сортируем задачи
-    // - Очищаем список
-    // - Рендерим список заново
+    this.#sortEvents(sortingType);
+
+    this.#clearTripEvents();
+    this.#renderTripEvents();
   };
 
   #renderEvent = (event, destinations, offersByType) => {

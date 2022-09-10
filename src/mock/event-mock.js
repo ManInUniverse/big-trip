@@ -18,8 +18,8 @@ const generateEvent = () => {
 
   return {
     basePrice: getRandomInteger(100, 1000),
-    dateFrom: '2019-07-10T22:55:56.845Z',
-    dateTo: '2019-07-11T11:22:13.375Z',
+    dateFrom: `2019-0${getRandomInteger(1, 7)}-0${getRandomInteger(1, 9)}T22:55:56.845Z`,
+    dateTo: `2019-0${getRandomInteger(7, 9)}-11T11:22:13.375Z`,
     destination: getRandomArrayElement(destinations).id,
     id: nanoid(),
     type: eventType,
