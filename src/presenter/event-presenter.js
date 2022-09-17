@@ -61,6 +61,7 @@ export default class EventPresenter {
 
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#editEventComponent.reset(this.#event);
       this.#replaceFormToCard();
     }
   };
@@ -86,6 +87,7 @@ export default class EventPresenter {
   #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      this.#editEventComponent.reset(this.#event);
       this.#replaceFormToCard();
     }
   };
@@ -95,6 +97,7 @@ export default class EventPresenter {
   };
 
   #onCloseButtonClick = () => {
+    this.#editEventComponent.reset(this.#event);
     this.#replaceFormToCard();
   };
 
