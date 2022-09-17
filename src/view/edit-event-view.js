@@ -1,12 +1,12 @@
 import { formatEventDateTime, isOfferChecked } from '../utils/event-utils.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 const createOffersTemplate = (type, offers, offersByType) => {
   const offersByCurrentType = offersByType.find((element) => element.type === type).offers;
 
   return offersByCurrentType.map(({ id, title, price }) =>
     `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-1" type="checkbox" name="event-offer-${title}" ${isOfferChecked(offers, id) ? 'checked' : ''}>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title}-1" type="checkbox" name="event-offer-${title}" data-offer-id="${id}" ${isOfferChecked(offers, id) ? 'checked' : ''}>
       <label class="event__offer-label" for="event-offer-${title}-1">
         <span class="event__offer-title">${title}</span>
         &plus;&euro;&nbsp;
@@ -18,13 +18,13 @@ const createOffersTemplate = (type, offers, offersByType) => {
 
 const createDestinationListTemplate = (destinations) => destinations.map((element) => `<option value="${element.name}"></option>`).join('');
 
-const createEventTypeListTemplate = (offersByType) => {
+const createEventTypeListTemplate = (offersByType, type) => {
   const eventTypes = offersByType.map((element) => element.type);
 
-  return eventTypes.map((type) =>
+  return eventTypes.map((eventType) =>
     `<div class="event__type-item">
-      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-      <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
+      <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType}" ${eventType === type ? 'checked' : ''}>
+      <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType}</label>
     </div>`
   ).join('');
 };
@@ -48,7 +48,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${createEventTypeListTemplate(offersByType)}
+                ${createEventTypeListTemplate(offersByType, type)}
               </fieldset>
             </div>
           </div>
@@ -104,20 +104,21 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
   );
 };
 
-export default class EditEventView extends AbstractView {
-  #event = null;
+export default class EditEventView extends AbstractStatefulView {
   #destinations = null;
   #offersByType = null;
 
   constructor(event, destinations, offersByType) {
     super();
-    this.#event = event;
+    this._state = EditEventView.parseEventToState(event);
     this.#destinations = destinations;
     this.#offersByType = offersByType;
+
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createEditEventTemplate(this.#event, this.#destinations, this.#offersByType);
+    return createEditEventTemplate(this._state, this.#destinations, this.#offersByType);
   }
 
   setOnCloseEditEventButtonClick = (callback) => {
@@ -137,6 +138,72 @@ export default class EditEventView extends AbstractView {
 
   #onSubmitEventForm = (evt) => {
     evt.preventDefault();
-    this._callback.submitEventForm(this.#event, this.#destinations, this.#offersByType);
+    this._callback.submitEventForm(EditEventView.parseStateToEvent(this._state), this.#destinations, this.#offersByType);
+  };
+
+  static parseEventToState = (event) => ({...event});
+
+  static parseStateToEvent = (state) => {
+    const event = {...state};
+    return event;
+  };
+
+  #setInnerHandlers = () => {
+    this.element.addEventListener('change', this.#onOfferChange);
+    this.element.addEventListener('change', this.#onEventTypeChange);
+    this.element.addEventListener('change', this.#onDestinationChange);
+  };
+
+  #onOfferChange = (evt) => {
+    if (!evt.target.closest('input[type="checkbox"].event__offer-checkbox')) {
+      return;
+    }
+
+    evt.preventDefault();
+    const checkedOffers = [...this._state.offers];
+    if (evt.target.checked) {
+      checkedOffers.push(Number(evt.target.dataset.offerId));
+    } else {
+      const idIndex = checkedOffers.indexOf(Number(evt.target.dataset.offerId));
+      checkedOffers.splice(idIndex, 1);
+    }
+
+    this.updateElement({
+      offers: checkedOffers
+    });
+  };
+
+  #onEventTypeChange = (evt) => {
+    if (!evt.target.closest('input[type="radio"].event__type-input')) {
+      return;
+    }
+
+    evt.preventDefault();
+    this.updateElement({
+      type: evt.target.value,
+      offers: []
+    });
+  };
+
+  #onDestinationChange = (evt) => {
+    if (!evt.target.closest('input[type="text"].event__input--destination')) {
+      return;
+    }
+
+    evt.preventDefault();
+    const newDestination = this.#destinations.find((destination) => destination.name === evt.target.value).id;
+    this.updateElement({
+      destination: newDestination
+    });
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setOnSubmitEventForm(this._callback.submitEventForm);
+    this.setOnCloseEditEventButtonClick(this._callback.click);
+  };
+
+  reset = (event) => {
+    this.updateElement(EditEventView.parseEventToState(event));
   };
 }
