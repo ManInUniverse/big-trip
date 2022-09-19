@@ -498,6 +498,7 @@ main {
   display: block;
   padding: 5px 10px 5px 62px;
   font-size: 17px;
+  text-transform: capitalize;
   line-height: 21px;
   -webkit-user-select: none;
      -moz-user-select: none;

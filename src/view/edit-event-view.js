@@ -1,5 +1,7 @@
 import { formatEventDateTime, isOfferChecked } from '../utils/event-utils.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const createOffersTemplate = (type, offers, offersByType) => {
   const offersByCurrentType = offersByType.find((element) => element.type === type).offers;
@@ -105,6 +107,9 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
 };
 
 export default class EditEventView extends AbstractStatefulView {
+  #dateFromPicker = null;
+  #dateToPicker = null;
+
   #destinations = null;
   #offersByType = null;
 
@@ -115,6 +120,8 @@ export default class EditEventView extends AbstractStatefulView {
     this.#offersByType = offersByType;
 
     this.#setInnerHandlers();
+
+    this.#setDatePickers();
   }
 
   get template() {
@@ -197,10 +204,50 @@ export default class EditEventView extends AbstractStatefulView {
     });
   };
 
+  #onDateFromChange = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate
+    });
+  };
+
+  #onDateToChange = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate
+    });
+  };
+
+  #setDatePickers = () => {
+    this.#dateFromPicker = flatpickr(this.element.querySelector('input[name="event-start-time"].event__input--time'), {
+      enableTime: true,
+      dateFormat: 'd/m/y H:i',
+      defaultDate: this._state.dateFrom,
+      onChange: this.#onDateFromChange
+    });
+    this.#dateToPicker = flatpickr(this.element.querySelector('input[name="event-end-time"].event__input--time'), {
+      enableTime: true,
+      dateFormat: 'd/m/y  H:i',
+      defaultDate: this._state.dateTo,
+      onChange: this.#onDateToChange
+    });
+  };
+
   _restoreHandlers = () => {
     this.#setInnerHandlers();
     this.setOnSubmitEventForm(this._callback.submitEventForm);
     this.setOnCloseEditEventButtonClick(this._callback.click);
+
+    this.#setDatePickers();
+  };
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#dateFromPicker || this.#dateToPicker) {
+      this.#dateFromPicker.destroy();
+      this.#dateToPicker.destroy();
+      this.#dateFromPicker = null;
+      this.#dateToPicker = null;
+    }
   };
 
   reset = (event) => {
