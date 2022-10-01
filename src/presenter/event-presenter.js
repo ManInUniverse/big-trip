@@ -1,6 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import EventView from '../view/event-view.js';
 import EditEventView from '../view/edit-event-view.js';
+import {UserAction, UpdateType} from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -41,6 +42,7 @@ export default class EventPresenter {
     this.#eventComponent.setOnEditEventButtonClick(this.#onEditButtonClick);
     this.#editEventComponent.setOnCloseEditEventButtonClick(this.#onCloseButtonClick);
     this.#editEventComponent.setOnSubmitEventForm(this.#onFormSubmit);
+    this.#editEventComponent.setOnDeleteEventButtonClick(this.#onDeleteButtonClick);
 
     if (prevEventComponent === null || prevEditEventComponent === null) {
       render(this.#eventComponent, this.#tripEventsListContainer);
@@ -101,8 +103,12 @@ export default class EventPresenter {
     this.#replaceFormToCard();
   };
 
-  #onFormSubmit = (event, destinations, offersByType) => {
-    this.#changeData(event, destinations, offersByType);
+  #onFormSubmit = (update, destinations, offersByType) => {
+    this.#changeData(UserAction.UPDATE_EVENT, UpdateType.MINOR, update, destinations, offersByType);
     this.#replaceFormToCard();
+  };
+
+  #onDeleteButtonClick = (event) => {
+    this.#changeData(UserAction.DELETE_EVENT, UpdateType.MINOR, event);
   };
 }

@@ -129,13 +129,13 @@ export default class EditEventView extends AbstractStatefulView {
   }
 
   setOnCloseEditEventButtonClick = (callback) => {
-    this._callback.click = callback;
+    this._callback.closeClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onCloseEditEventButtonClick);
   };
 
   #onCloseEditEventButtonClick = (evt) => {
     evt.preventDefault();
-    this._callback.click();
+    this._callback.closeClick();
   };
 
   setOnSubmitEventForm = (callback) => {
@@ -146,6 +146,16 @@ export default class EditEventView extends AbstractStatefulView {
   #onSubmitEventForm = (evt) => {
     evt.preventDefault();
     this._callback.submitEventForm(EditEventView.parseStateToEvent(this._state), this.#destinations, this.#offersByType);
+  };
+
+  setOnDeleteEventButtonClick = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onDeleteEventButtonClick);
+  };
+
+  #onDeleteEventButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(EditEventView.parseStateToEvent(this._state));
   };
 
   static parseEventToState = (event) => ({...event});
@@ -233,8 +243,10 @@ export default class EditEventView extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.#setInnerHandlers();
+
     this.setOnSubmitEventForm(this._callback.submitEventForm);
-    this.setOnCloseEditEventButtonClick(this._callback.click);
+    this.setOnCloseEditEventButtonClick(this._callback.closeClick);
+    this.setOnDeleteEventButtonClick(this._callback.deleteClick);
 
     this.#setDatePickers();
   };
