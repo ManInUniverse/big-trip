@@ -5,6 +5,7 @@ import EmptyListMessageView from '../view/empty-list-message-view.js';
 import EventPresenter from './event-presenter.js';
 import { SortingType, UserAction, UpdateType } from '../const.js';
 import { sortEventsByDate, sortEventsByPrice } from '../utils/event-utils.js';
+import { filter } from '../utils/filter-utils.js';
 
 export default class TripEventsPresenter {
   #emptyListMessageComponent = new EmptyListMessageView();
@@ -14,6 +15,8 @@ export default class TripEventsPresenter {
   #tripEventsContainer = null;
   #tripEventsModel = null;
 
+  #filterModel = null;
+
   #destinations = null;
   #offersByType = null;
 
@@ -21,22 +24,28 @@ export default class TripEventsPresenter {
 
   #currentSortingType = SortingType.DAY;
 
-  constructor(tripEventsContainer, tripEventsModel) {
+  constructor(tripEventsContainer, tripEventsModel, filterModel) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#tripEventsModel = tripEventsModel;
+    this.#filterModel = filterModel;
 
     this.#tripEventsModel.addObserver(this.#onModelEvent);
+    this.#filterModel.addObserver(this.#onModelEvent);
   }
 
   get events() {
+    const filterType = this.#filterModel.filter;
+    const events = this.#tripEventsModel.events;
+    const filteredEvents = filter[filterType](events);
+
     switch (this.#currentSortingType) {
       case SortingType.DAY:
-        return [...this.#tripEventsModel.events].sort(sortEventsByDate);
+        return filteredEvents.sort(sortEventsByDate);
       case SortingType.PRICE:
-        return [...this.#tripEventsModel.events].sort(sortEventsByPrice);
+        return filteredEvents.sort(sortEventsByPrice);
     }
 
-    return this.#tripEventsModel.events;
+    return filteredEvents;
   }
 
   init = () => {
@@ -127,6 +136,7 @@ export default class TripEventsPresenter {
 
     remove(this.#sortingComponent);
     remove(this.#tripEventsListComponent);
+    remove(this.#emptyListMessageComponent);
 
     if (resetSortingType) {
       this.#currentSortingType = SortingType.DAY;
