@@ -214,6 +214,22 @@ export default class AddEventView extends AbstractStatefulView {
     }
 
     evt.preventDefault();
+
+    let optionFound = false;
+    const datalist = evt.target.list;
+    for (let i = 0; i < datalist.options.length; i++) {
+      if (evt.target.value === datalist.options[i].value) {
+        optionFound = true;
+        break;
+      }
+    }
+
+    if (optionFound) {
+      evt.target.setCustomValidity('');
+    } else {
+      evt.target.setCustomValidity('Please select a destination from list');
+    }
+
     const newDestination = this.#destinations.find((destination) => destination.name === evt.target.value).id;
     this.updateElement({
       destination: newDestination
