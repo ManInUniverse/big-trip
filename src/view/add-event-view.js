@@ -44,7 +44,7 @@ const createEventTypeListTemplate = (offersByType, type) => {
   ).join('');
 };
 
-const createEditEventTemplate = (event, destinations, offersByType) => {
+const createAddEventTemplate = (event, destinations, offersByType) => {
   const { basePrice, dateFrom, dateTo, destination, type, offers } = event;
   const currentDestination = destinations.find((element) => element.id === destination);
 
@@ -71,7 +71,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${currentDestination.name}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${currentDestination.name}" list="destination-list-1" required>
             <datalist id="destination-list-1">
               ${createDestinationListTemplate(destinations)}
             </datalist>
@@ -90,7 +90,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" min="1" max="9999999" required name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -142,7 +142,7 @@ export default class AddEventView extends AbstractStatefulView {
   }
 
   get template() {
-    return createEditEventTemplate(this._state, this.#destinations, this.#offersByType);
+    return createAddEventTemplate(this._state, this.#destinations, this.#offersByType);
   }
 
   setOnSubmitEventForm = (callback) => {
@@ -174,6 +174,7 @@ export default class AddEventView extends AbstractStatefulView {
     this.element.addEventListener('change', this.#onOfferChange);
     this.element.addEventListener('change', this.#onEventTypeChange);
     this.element.addEventListener('change', this.#onDestinationChange);
+    this.element.addEventListener('change', this.#onPriceChange);
   };
 
   #onOfferChange = (evt) => {
@@ -216,6 +217,17 @@ export default class AddEventView extends AbstractStatefulView {
     const newDestination = this.#destinations.find((destination) => destination.name === evt.target.value).id;
     this.updateElement({
       destination: newDestination
+    });
+  };
+
+  #onPriceChange = (evt) => {
+    if (!evt.target.closest('input[type="number"].event__input--price')) {
+      return;
+    }
+
+    evt.preventDefault();
+    this.updateElement({
+      basePrice: evt.target.value
     });
   };
 
