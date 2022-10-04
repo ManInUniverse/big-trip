@@ -33,8 +33,7 @@ const createEventTypeListTemplate = (offersByType, type) => {
 
 const createEditEventTemplate = (event, destinations, offersByType) => {
   const { basePrice, dateFrom, dateTo, destination, type, offers } = event;
-  const destinationName = destinations.find((element) => element.id === destination).name;
-  const destinationDescription = destinations.find((element) => element.id === destination).description;
+  const currentDestination = destinations.find((element) => element.id === destination);
 
   return (
     `<li class="trip-events__item">
@@ -59,7 +58,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${currentDestination.name}" list="destination-list-1">
             <datalist id="destination-list-1">
               ${createDestinationListTemplate(destinations)}
             </datalist>
@@ -98,7 +97,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${destinationDescription}</p>
+            <p class="event__destination-description">${currentDestination.description}</p>
           </section>
         </section>
       </form>
