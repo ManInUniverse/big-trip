@@ -1,10 +1,10 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { SortingType } from '../const.js';
 
-const createSortingTemplate = () => `
+const createSortingTemplate = (currentSortingType) => `
   <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
     <div class="trip-sort__item  trip-sort__item--${SortingType.DAY}">
-      <input id="sort-${SortingType.DAY}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${SortingType.DAY}"  data-sorting-type="${SortingType.DAY}" checked>
+      <input id="sort-${SortingType.DAY}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${SortingType.DAY}"  data-sorting-type="${SortingType.DAY}" ${currentSortingType === SortingType.DAY ? 'checked' : ''}>
       <label class="trip-sort__btn" for="sort-${SortingType.DAY}">${SortingType.DAY}</label>
     </div>
 
@@ -19,7 +19,7 @@ const createSortingTemplate = () => `
     </div>
 
     <div class="trip-sort__item  trip-sort__item--${SortingType.PRICE}">
-      <input id="sort-${SortingType.PRICE}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${SortingType.PRICE}"  data-sorting-type="${SortingType.PRICE}">
+      <input id="sort-${SortingType.PRICE}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${SortingType.PRICE}"  data-sorting-type="${SortingType.PRICE}" ${currentSortingType === SortingType.PRICE ? 'checked' : ''}>
       <label class="trip-sort__btn" for="sort-${SortingType.PRICE}">${SortingType.PRICE}</label>
     </div>
 
@@ -31,8 +31,15 @@ const createSortingTemplate = () => `
 `;
 
 export default class SortingView extends AbstractView {
+  #currentSortingType = null;
+
+  constructor(currentSortingType) {
+    super();
+    this.#currentSortingType = currentSortingType;
+  }
+
   get template() {
-    return createSortingTemplate();
+    return createSortingTemplate(this.#currentSortingType);
   }
 
   setOnSortingTypeChange = (callback) => {

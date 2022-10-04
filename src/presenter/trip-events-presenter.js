@@ -1,87 +1,120 @@
-import { render } from '../framework/render.js';
+import { remove, render } from '../framework/render.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import SortingView from '../view/sorting-view.js';
 import EmptyListMessageView from '../view/empty-list-message-view.js';
 import EventPresenter from './event-presenter.js';
-import { updateItem } from '../utils/common-utils.js';
-import { SortingType } from '../const.js';
+import AddEventPresenter from './add-event-presenter.js';
+import { SortingType, UserAction, UpdateType, FilterType } from '../const.js';
 import { sortEventsByDate, sortEventsByPrice } from '../utils/event-utils.js';
+import { filter } from '../utils/filter-utils.js';
 
 export default class TripEventsPresenter {
-  #emptyListMessageComponent = new EmptyListMessageView();
-  #sortingComponent = new SortingView();
+  #emptyListMessageComponent = null;
+  #sortingComponent = null;
   #tripEventsListComponent = new TripEventsListView();
 
   #tripEventsContainer = null;
-  #tripEventsModel = null;
 
-  #events = null;
-  #destinations = null;
-  #offersByType = null;
+  #tripEventsModel = null;
+  #destinationsModel = null;
+  #offersByTypeModel = null;
+  #filterModel = null;
 
   #eventPresenters = new Map();
-  #sourcedEvents = [];
+  #addEventPresenter = null;
 
   #currentSortingType = SortingType.DAY;
+  #filterType = FilterType.EVERYTHING;
 
-  constructor(tripEventsContainer, tripEventsModel) {
+  constructor(tripEventsContainer, tripEventsModel, destinationsModel, offerByTypeModel, filterModel) {
     this.#tripEventsContainer = tripEventsContainer;
     this.#tripEventsModel = tripEventsModel;
+    this.#destinationsModel = destinationsModel;
+    this.#offersByTypeModel = offerByTypeModel;
+    this.#filterModel = filterModel;
+
+    this.#addEventPresenter = new AddEventPresenter(this.#tripEventsListComponent.element, this.#onViewAction);
+
+    this.#tripEventsModel.addObserver(this.#onModelEvent);
+    this.#filterModel.addObserver(this.#onModelEvent);
+  }
+
+  get events() {
+    this.#filterType = this.#filterModel.filter;
+    const events = this.#tripEventsModel.events;
+    const filteredEvents = filter[this.#filterType](events);
+
+    switch (this.#currentSortingType) {
+      case SortingType.DAY:
+        return filteredEvents.sort(sortEventsByDate);
+      case SortingType.PRICE:
+        return filteredEvents.sort(sortEventsByPrice);
+    }
+
+    return filteredEvents;
   }
 
   init = () => {
-    this.#events = [...this.#tripEventsModel.events];
-    this.#destinations = [...this.#tripEventsModel.destinations];
-    this.#offersByType = [...this.#tripEventsModel.offersByType];
-
-    this.#sourcedEvents = [...this.#tripEventsModel.events];
-
-    this.#sortEvents(this.#currentSortingType);
     this.#renderTripEvents();
   };
 
-  #onEventChange = (updatedEvent, destinations, offersByType) => {
-    this.#events = updateItem(this.#events, updatedEvent);
-    this.#sourcedEvents = updateItem(this.#sourcedEvents, updatedEvent);
-    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent, destinations, offersByType);
+  createTripEvent = (callback) => {
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#addEventPresenter.init(this.#destinationsModel.destinations, this.#offersByTypeModel.offersByType, callback);
+  };
+
+  #onViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_EVENT:
+        this.#tripEventsModel.updateEvent(updateType, update);
+        break;
+      case UserAction.ADD_EVENT:
+        this.#tripEventsModel.addEvent(updateType, update);
+        break;
+      case UserAction.DELETE_EVENT:
+        this.#tripEventsModel.deleteEvent(updateType, update);
+        break;
+    }
+  };
+
+  #onModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#eventPresenters.get(data.id).init(data, this.#destinationsModel.destinations, this.#offersByTypeModel.offersByType);
+        break;
+      case UpdateType.MINOR:
+        this.#clearTripEvents();
+        this.#renderTripEvents();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearTripEvents({resetSortingType: true});
+        this.#renderTripEvents();
+        break;
+    }
   };
 
   #onModeChange = () => {
+    this.#addEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #sortEvents = (sortingType) => {
-    switch(sortingType) {
-      case SortingType.DAY:
-        this.#events.sort(sortEventsByDate);
-        break;
-      case SortingType.PRICE:
-        this.#events.sort(sortEventsByPrice);
-        break;
-      default:
-        this.#events = [...this.#sourcedEvents];
-    }
-
-    this.#currentSortingType = sortingType;
-  };
-
   #onSortingTypeChange = (sortingType) => {
-    this.#sortEvents(sortingType);
-
+    this.#currentSortingType = sortingType;
     this.#clearTripEvents();
     this.#renderTripEvents();
   };
 
-  #renderEvent = (event, destinations, offersByType) => {
-    const eventPresenter = new EventPresenter(this.#tripEventsListComponent.element, this.#onEventChange, this.#onModeChange);
-    eventPresenter.init(event, destinations, offersByType);
+  #renderEvent = (event) => {
+    const eventPresenter = new EventPresenter(this.#tripEventsListComponent.element, this.#onViewAction, this.#onModeChange);
+    eventPresenter.init(event, this.#destinationsModel.destinations, this.#offersByTypeModel.offersByType);
 
     this.#eventPresenters.set(event.id, eventPresenter);
   };
 
   #renderSorting = () => {
-    render(this.#sortingComponent, this.#tripEventsContainer);
+    this.#sortingComponent = new SortingView(this.#currentSortingType);
     this.#sortingComponent.setOnSortingTypeChange(this.#onSortingTypeChange);
+    render(this.#sortingComponent, this.#tripEventsContainer);
   };
 
   #renderTripEventsList = () => {
@@ -89,24 +122,33 @@ export default class TripEventsPresenter {
   };
 
   #renderEmptyListMessage = () => {
+    this.#emptyListMessageComponent = new EmptyListMessageView(this.#filterType);
     render(this.#emptyListMessageComponent, this.#tripEventsContainer);
   };
 
   #renderTripEvents = () => {
-    if (this.#events.length === 0) {
+    if (this.events.length === 0) {
       this.#renderEmptyListMessage();
     } else {
       this.#renderSorting();
       this.#renderTripEventsList();
-
-      for (let i = 0; i < this.#events.length; i++) {
-        this.#renderEvent(this.#events[i], this.#destinations, this.#offersByType);
-      }
+      this.events.forEach((event) => this.#renderEvent(event, this.#destinationsModel.destinations, this.#offersByTypeModel.offersByType));
     }
   };
 
-  #clearTripEvents = () => {
+  #clearTripEvents = ({resetSortingType = false} = {}) => {
+    this.#addEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
+
+    remove(this.#sortingComponent);
+
+    if (this.#emptyListMessageComponent) {
+      remove(this.#emptyListMessageComponent);
+    }
+
+    if (resetSortingType) {
+      this.#currentSortingType = SortingType.DAY;
+    }
   };
 }

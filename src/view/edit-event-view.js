@@ -33,8 +33,7 @@ const createEventTypeListTemplate = (offersByType, type) => {
 
 const createEditEventTemplate = (event, destinations, offersByType) => {
   const { basePrice, dateFrom, dateTo, destination, type, offers } = event;
-  const destinationName = destinations.find((element) => element.id === destination).name;
-  const destinationDescription = destinations.find((element) => element.id === destination).description;
+  const currentDestination = destinations.find((element) => element.id === destination);
 
   return (
     `<li class="trip-events__item">
@@ -59,7 +58,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${currentDestination.name}" list="destination-list-1" required>
             <datalist id="destination-list-1">
               ${createDestinationListTemplate(destinations)}
             </datalist>
@@ -78,7 +77,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" min="1" max="9999999" required name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -98,7 +97,7 @@ const createEditEventTemplate = (event, destinations, offersByType) => {
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${destinationDescription}</p>
+            <p class="event__destination-description">${currentDestination.description}</p>
           </section>
         </section>
       </form>
@@ -129,13 +128,13 @@ export default class EditEventView extends AbstractStatefulView {
   }
 
   setOnCloseEditEventButtonClick = (callback) => {
-    this._callback.click = callback;
+    this._callback.closeClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onCloseEditEventButtonClick);
   };
 
   #onCloseEditEventButtonClick = (evt) => {
     evt.preventDefault();
-    this._callback.click();
+    this._callback.closeClick();
   };
 
   setOnSubmitEventForm = (callback) => {
@@ -146,6 +145,16 @@ export default class EditEventView extends AbstractStatefulView {
   #onSubmitEventForm = (evt) => {
     evt.preventDefault();
     this._callback.submitEventForm(EditEventView.parseStateToEvent(this._state), this.#destinations, this.#offersByType);
+  };
+
+  setOnDeleteEventButtonClick = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onDeleteEventButtonClick);
+  };
+
+  #onDeleteEventButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(EditEventView.parseStateToEvent(this._state));
   };
 
   static parseEventToState = (event) => ({...event});
@@ -159,6 +168,7 @@ export default class EditEventView extends AbstractStatefulView {
     this.element.addEventListener('change', this.#onOfferChange);
     this.element.addEventListener('change', this.#onEventTypeChange);
     this.element.addEventListener('change', this.#onDestinationChange);
+    this.element.addEventListener('change', this.#onPriceChange);
   };
 
   #onOfferChange = (evt) => {
@@ -198,9 +208,37 @@ export default class EditEventView extends AbstractStatefulView {
     }
 
     evt.preventDefault();
+
+    let optionFound = false;
+    const datalist = evt.target.list;
+    for (let i = 0; i < datalist.options.length; i++) {
+      if (evt.target.value === datalist.options[i].value) {
+        optionFound = true;
+        break;
+      }
+    }
+
+    if (optionFound) {
+      evt.target.setCustomValidity('');
+    } else {
+      evt.target.setCustomValidity('Please select a destination from list');
+    }
+
+
     const newDestination = this.#destinations.find((destination) => destination.name === evt.target.value).id;
     this.updateElement({
       destination: newDestination
+    });
+  };
+
+  #onPriceChange = (evt) => {
+    if (!evt.target.closest('input[type="number"].event__input--price')) {
+      return;
+    }
+
+    evt.preventDefault();
+    this.updateElement({
+      basePrice: evt.target.value
     });
   };
 
@@ -233,8 +271,10 @@ export default class EditEventView extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.#setInnerHandlers();
+
     this.setOnSubmitEventForm(this._callback.submitEventForm);
-    this.setOnCloseEditEventButtonClick(this._callback.click);
+    this.setOnCloseEditEventButtonClick(this._callback.closeClick);
+    this.setOnDeleteEventButtonClick(this._callback.deleteClick);
 
     this.#setDatePickers();
   };
