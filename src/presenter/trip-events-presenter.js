@@ -8,6 +8,12 @@ import { SortingType, UserAction, UpdateType, FilterType } from '../const.js';
 import { sortEventsByDate, sortEventsByPrice } from '../utils/event-utils.js';
 import { filter } from '../utils/filter-utils.js';
 import LoadingMessageView from '../view/loading-message-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class TripEventsPresenter {
   #emptyListMessageComponent = null;
@@ -27,6 +33,7 @@ export default class TripEventsPresenter {
   #currentSortingType = SortingType.DAY;
   #filterType = FilterType.EVERYTHING;
   #isLoading = true;
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
   constructor(tripEventsContainer, tripEventsModel, destinationsModel, offerByTypeModel, filterModel) {
     this.#tripEventsContainer = tripEventsContainer;
@@ -65,18 +72,37 @@ export default class TripEventsPresenter {
     this.#addEventPresenter.init(this.#destinationsModel.destinations, this.#offersByTypeModel.offersByType, callback);
   };
 
-  #onViewAction = (actionType, updateType, update) => {
+  #onViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this.#tripEventsModel.updateEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setSaving();
+        try {
+          await this.#tripEventsModel.updateEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_EVENT:
-        this.#tripEventsModel.addEvent(updateType, update);
+        this.#addEventPresenter.setSaving();
+        try {
+          await this.#tripEventsModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#addEventPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_EVENT:
-        this.#tripEventsModel.deleteEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setDeleting();
+        try {
+          await this.#tripEventsModel.deleteEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #onModelEvent = (updateType, data) => {
