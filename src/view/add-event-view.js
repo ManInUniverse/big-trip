@@ -152,6 +152,9 @@ export default class AddEventView extends AbstractStatefulView {
 
   #onSubmitEventForm = (evt) => {
     evt.preventDefault();
+    if (this._state.dateFrom > this._state.dateTo) {
+      return;
+    }
     this._callback.submitEventForm(AddEventView.parseStateToEvent(this._state), this.#destinations, this.#offersByType);
   };
 
