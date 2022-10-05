@@ -61,8 +61,8 @@ export default class TripEventsApiService extends ApiService {
   #adaptToServer = (event) => {
     const adaptedEvent = {...event,
       'base_price': Number(event.basePrice),
-      'date_from': event.dateFrom instanceof Date ? event.dateFrom.toISOString() : null,
-      'date_to': event.dateTo instanceof Date ? event.dateTo.toISOString() : null
+      'date_from': event.dateFrom,
+      'date_to': event.dateTo
     };
 
     delete adaptedEvent.basePrice;

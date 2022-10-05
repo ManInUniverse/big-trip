@@ -26,9 +26,10 @@ export default class AddEventPresenter {
       return;
     }
 
-    this.#addEventComponent = new AddEventView(destinations, offersByType);
+    this.#addEventComponent = new AddEventView(undefined, destinations, offersByType);
 
-    this.#addEventComponent.setOnCancelEventButtonClick(this.#onCancelButtonClick);//
+    this.#addEventComponent.setOnCancelEventButtonClick(this.#onCancelButtonClick);
+    this.#addEventComponent.setOnCloseEventButtonClick(this.#onCloseButtonClick);
     this.#addEventComponent.setOnSubmitEventForm(this.#onFormSubmit);
 
     render(this.#addEventComponent, this.#tripEventsListContainer, RenderPosition.AFTERBEGIN);
@@ -49,6 +50,24 @@ export default class AddEventPresenter {
     document.removeEventListener('keydown', this.#onEscKeyDown);
   };
 
+  setSaving = () => {
+    this.#addEventComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  };
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#addEventComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+      });
+    };
+
+    this.#addEventComponent.shake(resetFormState);
+  };
+
   #onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
@@ -60,8 +79,11 @@ export default class AddEventPresenter {
     this.destroy();
   };
 
+  #onCloseButtonClick = () => {
+    this.destroy();
+  };
+
   #onFormSubmit = (event) => {
     this.#changeData(UserAction.ADD_EVENT, UpdateType.MINOR, event);
-    this.destroy();
   };
 }
