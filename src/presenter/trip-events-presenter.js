@@ -1,4 +1,4 @@
-import { remove, render } from '../framework/render.js';
+import { remove, render, RenderPosition } from '../framework/render.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import SortingView from '../view/sorting-view.js';
 import EmptyListMessageView from '../view/empty-list-message-view.js';
@@ -7,12 +7,13 @@ import AddEventPresenter from './add-event-presenter.js';
 import { SortingType, UserAction, UpdateType, FilterType } from '../const.js';
 import { sortEventsByDate, sortEventsByPrice } from '../utils/event-utils.js';
 import { filter } from '../utils/filter-utils.js';
+import LoadingMessageView from '../view/loading-message-view.js';
 
 export default class TripEventsPresenter {
   #emptyListMessageComponent = null;
   #sortingComponent = null;
   #tripEventsListComponent = new TripEventsListView();
-
+  #loadingMessageComponent = new LoadingMessageView();
   #tripEventsContainer = null;
 
   #tripEventsModel = null;
@@ -25,6 +26,7 @@ export default class TripEventsPresenter {
 
   #currentSortingType = SortingType.DAY;
   #filterType = FilterType.EVERYTHING;
+  #isLoading = true;
 
   constructor(tripEventsContainer, tripEventsModel, destinationsModel, offerByTypeModel, filterModel) {
     this.#tripEventsContainer = tripEventsContainer;
@@ -90,6 +92,11 @@ export default class TripEventsPresenter {
         this.#clearTripEvents({resetSortingType: true});
         this.#renderTripEvents();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingMessageComponent);
+        this.#renderTripEvents();
+        break;
     }
   };
 
@@ -126,7 +133,16 @@ export default class TripEventsPresenter {
     render(this.#emptyListMessageComponent, this.#tripEventsContainer);
   };
 
+  #renderLoadingMessage = () => {
+    render(this.#loadingMessageComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
+  };
+
   #renderTripEvents = () => {
+    if (this.#isLoading) {
+      this.#renderLoadingMessage();
+      return;
+    }
+
     if (this.events.length === 0) {
       this.#renderEmptyListMessage();
     } else {
@@ -142,6 +158,7 @@ export default class TripEventsPresenter {
     this.#eventPresenters.clear();
 
     remove(this.#sortingComponent);
+    remove(this.#loadingMessageComponent);
 
     if (this.#emptyListMessageComponent) {
       remove(this.#emptyListMessageComponent);

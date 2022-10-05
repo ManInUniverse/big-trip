@@ -2,9 +2,6 @@ import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
 import AddEventView from '../view/add-event-view.js';
 
-import { customAlphabet } from 'nanoid';
-const nanoid = customAlphabet('1234567890', 10);
-
 export default class AddEventPresenter {
   #destinations = null;
   #offersByType = null;
@@ -64,7 +61,7 @@ export default class AddEventPresenter {
   };
 
   #onFormSubmit = (event) => {
-    this.#changeData(UserAction.ADD_EVENT, UpdateType.MINOR, {id: nanoid(), ...event});
+    this.#changeData(UserAction.ADD_EVENT, UpdateType.MINOR, event);
     this.destroy();
   };
 }
