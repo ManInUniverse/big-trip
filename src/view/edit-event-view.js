@@ -119,7 +119,6 @@ export default class EditEventView extends AbstractStatefulView {
     this.#offersByType = offersByType;
 
     this.#setInnerHandlers();
-
     this.#setDatePickers();
   }
 
@@ -127,19 +126,71 @@ export default class EditEventView extends AbstractStatefulView {
     return createEditEventTemplate(this._state, this.#destinations, this.#offersByType);
   }
 
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+
+    this.setOnSubmitEventForm(this._callback.submitEventForm);
+    this.setOnCloseEditEventButtonClick(this._callback.closeClick);
+    this.setOnDeleteEventButtonClick(this._callback.deleteClick);
+
+    this.#setDatePickers();
+  };
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#dateFromPicker || this.#dateToPicker) {
+      this.#dateFromPicker.destroy();
+      this.#dateToPicker.destroy();
+      this.#dateFromPicker = null;
+      this.#dateToPicker = null;
+    }
+  };
+
+  reset = (event) => {
+    this.updateElement(EditEventView.parseEventToState(event));
+  };
+
   setOnCloseEditEventButtonClick = (callback) => {
     this._callback.closeClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onCloseEditEventButtonClick);
   };
 
-  #onCloseEditEventButtonClick = (evt) => {
-    evt.preventDefault();
-    this._callback.closeClick();
-  };
-
   setOnSubmitEventForm = (callback) => {
     this._callback.submitEventForm = callback;
     this.element.querySelector('form').addEventListener('submit', this.#onSubmitEventForm);
+  };
+
+  setOnDeleteEventButtonClick = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onDeleteEventButtonClick);
+  };
+
+  #setInnerHandlers = () => {
+    this.element.addEventListener('change', this.#onOfferChange);
+    this.element.addEventListener('change', this.#onEventTypeChange);
+    this.element.addEventListener('change', this.#onDestinationChange);
+    this.element.addEventListener('change', this.#onPriceChange);
+  };
+
+  #setDatePickers = () => {
+    this.#dateFromPicker = flatpickr(this.element.querySelector('input[name="event-start-time"].event__input--time'), {
+      enableTime: true,
+      dateFormat: 'd/m/y H:i',
+      defaultDate: this._state.dateFrom,
+      onChange: this.#onDateFromChange
+    });
+    this.#dateToPicker = flatpickr(this.element.querySelector('input[name="event-end-time"].event__input--time'), {
+      enableTime: true,
+      dateFormat: 'd/m/y  H:i',
+      defaultDate: this._state.dateTo,
+      onChange: this.#onDateToChange
+    });
+  };
+
+  #onCloseEditEventButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.closeClick();
   };
 
   #onSubmitEventForm = (evt) => {
@@ -150,37 +201,9 @@ export default class EditEventView extends AbstractStatefulView {
     this._callback.submitEventForm(EditEventView.parseStateToEvent(this._state), this.#destinations, this.#offersByType);
   };
 
-  setOnDeleteEventButtonClick = (callback) => {
-    this._callback.deleteClick = callback;
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onDeleteEventButtonClick);
-  };
-
   #onDeleteEventButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.deleteClick(EditEventView.parseStateToEvent(this._state));
-  };
-
-  static parseEventToState = (event) => ({...event,
-    isDisabled: false,
-    isSaving: false,
-    isDeleting: false,
-  });
-
-  static parseStateToEvent = (state) => {
-    const event = {...state};
-
-    delete event.isDisabled;
-    delete event.isSaving;
-    delete event.isDeleting;
-
-    return event;
-  };
-
-  #setInnerHandlers = () => {
-    this.element.addEventListener('change', this.#onOfferChange);
-    this.element.addEventListener('change', this.#onEventTypeChange);
-    this.element.addEventListener('change', this.#onDestinationChange);
-    this.element.addEventListener('change', this.#onPriceChange);
   };
 
   #onOfferChange = (evt) => {
@@ -266,43 +289,19 @@ export default class EditEventView extends AbstractStatefulView {
     });
   };
 
-  #setDatePickers = () => {
-    this.#dateFromPicker = flatpickr(this.element.querySelector('input[name="event-start-time"].event__input--time'), {
-      enableTime: true,
-      dateFormat: 'd/m/y H:i',
-      defaultDate: this._state.dateFrom,
-      onChange: this.#onDateFromChange
-    });
-    this.#dateToPicker = flatpickr(this.element.querySelector('input[name="event-end-time"].event__input--time'), {
-      enableTime: true,
-      dateFormat: 'd/m/y  H:i',
-      defaultDate: this._state.dateTo,
-      onChange: this.#onDateToChange
-    });
-  };
+  static parseEventToState = (event) => ({...event,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
+  });
 
-  _restoreHandlers = () => {
-    this.#setInnerHandlers();
+  static parseStateToEvent = (state) => {
+    const event = {...state};
 
-    this.setOnSubmitEventForm(this._callback.submitEventForm);
-    this.setOnCloseEditEventButtonClick(this._callback.closeClick);
-    this.setOnDeleteEventButtonClick(this._callback.deleteClick);
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
 
-    this.#setDatePickers();
-  };
-
-  removeElement = () => {
-    super.removeElement();
-
-    if (this.#dateFromPicker || this.#dateToPicker) {
-      this.#dateFromPicker.destroy();
-      this.#dateToPicker.destroy();
-      this.#dateFromPicker = null;
-      this.#dateToPicker = null;
-    }
-  };
-
-  reset = (event) => {
-    this.updateElement(EditEventView.parseEventToState(event));
+    return event;
   };
 }

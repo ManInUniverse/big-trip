@@ -145,9 +145,61 @@ export default class AddEventView extends AbstractStatefulView {
     return createAddEventTemplate(this._state, this.#destinations, this.#offersByType);
   }
 
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+
+    this.setOnSubmitEventForm(this._callback.submitEventForm);
+    this.setOnCancelEventButtonClick(this._callback.cancelClick);
+
+    this.#setDatePickers();
+  };
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#dateFromPicker || this.#dateToPicker) {
+      this.#dateFromPicker.destroy();
+      this.#dateToPicker.destroy();
+      this.#dateFromPicker = null;
+      this.#dateToPicker = null;
+    }
+  };
+
   setOnSubmitEventForm = (callback) => {
     this._callback.submitEventForm = callback;
     this.element.querySelector('form').addEventListener('submit', this.#onSubmitEventForm);
+  };
+
+  setOnCancelEventButtonClick = (callback) => {
+    this._callback.cancelClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onCancelEventButtonClick);
+  };
+
+  setOnCloseEventButtonClick = (callback) => {
+    this._callback.closeClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onCloseEventButtonClick);
+  };
+
+  #setInnerHandlers = () => {
+    this.element.addEventListener('change', this.#onOfferChange);
+    this.element.addEventListener('change', this.#onEventTypeChange);
+    this.element.addEventListener('change', this.#onDestinationChange);
+    this.element.addEventListener('change', this.#onPriceChange);
+  };
+
+  #setDatePickers = () => {
+    this.#dateFromPicker = flatpickr(this.element.querySelector('input[name="event-start-time"].event__input--time'), {
+      enableTime: true,
+      dateFormat: 'd/m/y H:i',
+      defaultDate: this._state.dateFrom,
+      onChange: this.#onDateFromChange
+    });
+    this.#dateToPicker = flatpickr(this.element.querySelector('input[name="event-end-time"].event__input--time'), {
+      enableTime: true,
+      dateFormat: 'd/m/y  H:i',
+      defaultDate: this._state.dateTo,
+      onChange: this.#onDateToChange
+    });
   };
 
   #onSubmitEventForm = (evt) => {
@@ -158,45 +210,14 @@ export default class AddEventView extends AbstractStatefulView {
     this._callback.submitEventForm(AddEventView.parseStateToEvent(this._state), this.#destinations, this.#offersByType);
   };
 
-  setOnCancelEventButtonClick = (callback) => {
-    this._callback.cancelClick = callback;
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onCancelEventButtonClick);
-  };
-
   #onCancelEventButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.cancelClick();
   };
 
-  setOnCloseEventButtonClick = (callback) => {
-    this._callback.closeClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onCloseEventButtonClick);
-  };
-
   #onCloseEventButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.closeClick();
-  };
-
-  static parseEventToState = (event) => ({...event,
-    isDisabled: false,
-    isSaving: false,
-  });
-
-  static parseStateToEvent = (state) => {
-    const event = {...state};
-
-    delete event.isDisabled;
-    delete event.isSaving;
-
-    return event;
-  };
-
-  #setInnerHandlers = () => {
-    this.element.addEventListener('change', this.#onOfferChange);
-    this.element.addEventListener('change', this.#onEventTypeChange);
-    this.element.addEventListener('change', this.#onDestinationChange);
-    this.element.addEventListener('change', this.#onPriceChange);
   };
 
   #onOfferChange = (evt) => {
@@ -281,38 +302,17 @@ export default class AddEventView extends AbstractStatefulView {
     });
   };
 
-  #setDatePickers = () => {
-    this.#dateFromPicker = flatpickr(this.element.querySelector('input[name="event-start-time"].event__input--time'), {
-      enableTime: true,
-      dateFormat: 'd/m/y H:i',
-      defaultDate: this._state.dateFrom,
-      onChange: this.#onDateFromChange
-    });
-    this.#dateToPicker = flatpickr(this.element.querySelector('input[name="event-end-time"].event__input--time'), {
-      enableTime: true,
-      dateFormat: 'd/m/y  H:i',
-      defaultDate: this._state.dateTo,
-      onChange: this.#onDateToChange
-    });
-  };
+  static parseEventToState = (event) => ({...event,
+    isDisabled: false,
+    isSaving: false,
+  });
 
-  _restoreHandlers = () => {
-    this.#setInnerHandlers();
+  static parseStateToEvent = (state) => {
+    const event = {...state};
 
-    this.setOnSubmitEventForm(this._callback.submitEventForm);
-    this.setOnCancelEventButtonClick(this._callback.cancelClick);
+    delete event.isDisabled;
+    delete event.isSaving;
 
-    this.#setDatePickers();
-  };
-
-  removeElement = () => {
-    super.removeElement();
-
-    if (this.#dateFromPicker || this.#dateToPicker) {
-      this.#dateFromPicker.destroy();
-      this.#dateToPicker.destroy();
-      this.#dateFromPicker = null;
-      this.#dateToPicker = null;
-    }
+    return event;
   };
 }

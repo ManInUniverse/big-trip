@@ -49,14 +49,10 @@ export default class TripEventsApiService extends ApiService {
     return parsedResponse;
   };
 
-  deleteEvent = async (event) => {
-    const response = await this._load({
-      url: `points/${event.id}`,
-      method: Method.DELETE,
-    });
-
-    return response;
-  };
+  deleteEvent = async (event) => await this._load({
+    url: `points/${event.id}`,
+    method: Method.DELETE,
+  });
 
   #adaptToServer = (event) => {
     const adaptedEvent = {...event,
